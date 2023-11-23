@@ -1,5 +1,6 @@
 package com.faunog.m08_act03;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.os.Environment;
 
@@ -30,7 +31,15 @@ public class M08_Act03_MidiaPlayer extends AppCompatActivity {
         loadSongList();
 
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
-        recyclerView.setAdapter(new SongAdapter(songList));
+        // Crea el adaptador y agrega el OnItemClickListener
+        SongAdapter songAdapter = new SongAdapter(songList, this, songPath -> {
+            // Abre la actividad del reproductor de música y pasa la lista de canciones y la posición actual
+            Intent intent = new Intent(M08_Act03_MidiaPlayer.this, MediaPlayerActivity.class);
+            intent.putExtra("SONG_PATH", songPath);
+            intent.putStringArrayListExtra("SONG_LIST", new ArrayList<>(songList));
+            startActivity(intent);
+        });
+        recyclerView.setAdapter(songAdapter);
     }
 
     // Método para cargar la lista de canciones en el directorio "Download"
