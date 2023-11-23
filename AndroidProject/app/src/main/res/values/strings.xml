@@ -1,3 +1,12 @@
 <resources>
-    <string name="app_name">M08_Act03</string>
+    <string name="app_name">MediaPlayer M08_Act03</string>
+    <string name="item_song_contentDescription">Imagen del Álbum</string>
+    <string name="activity_media_player_TextView_TOP">Reproductor de Música</string>
+    <string name="activity_media_player_ButtonPlay">Play</string>
+    <string name="activity_media_player_ButtonStop">Stop</string>
+    <string name="activity_media_player_ButtonForward">Forward</string>
+    <string name="activity_media_player_ButtonBackward">Backward</string>
+    <string name="activity_media_player_ButtonNext">Next</string>
+    <string name="activity_media_player_ButtonPrevious">Previous</string>
+    <string name="activity_main_TextView_TOP">Lista de Canciones</string>
 </resources>
