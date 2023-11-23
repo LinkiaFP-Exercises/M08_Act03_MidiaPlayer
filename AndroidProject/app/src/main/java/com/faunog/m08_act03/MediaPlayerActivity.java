@@ -8,11 +8,13 @@ import android.widget.Button;
 import android.widget.SeekBar;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
 
 import java.io.IOException;
 import java.util.List;
 
 public class MediaPlayerActivity extends AppCompatActivity {
+    private Toolbar toolbar;
     private Button playPauseButton, stopButton, forwardButton, backwardButton, nextButton, prevButton;
     private SeekBar seekBar;
     private MediaPlayer mediaPlayer;
@@ -25,10 +27,8 @@ public class MediaPlayerActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_media_player);
 
-        // Inicializa los elementos de la interfaz
         initializeInterfaceElements();
-
-        // Inicializa el reproductor
+        setSupportActionBar(toolbar);
         initializeMediaPlayerElements();
         try {
             mediaPlayer.setDataSource(songPath);
@@ -174,6 +174,7 @@ public class MediaPlayerActivity extends AppCompatActivity {
     }
 
     private void initializeInterfaceElements() {
+        toolbar = findViewById(R.id.toolbar);
         playPauseButton = findViewById(R.id.playPauseButton);
         stopButton = findViewById(R.id.stopButton);
         forwardButton = findViewById(R.id.forwardButton);

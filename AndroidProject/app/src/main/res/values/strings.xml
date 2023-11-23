@@ -14,4 +14,5 @@
     <string name="activity_media_player_authorTextView">Unknown Author</string>
     <string name="activity_media_player_albumTitleTextView">Unknown Album</string>
     <string name="activity_media_player_albumImageView">Imagen del Album</string>
+    <string name="menu_toobar_action_back">Lista de Músicas</string>
 </resources>
