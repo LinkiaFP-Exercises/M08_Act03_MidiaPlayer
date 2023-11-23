@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.appcompat.widget.LinearLayoutCompat xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="horizontal"
+    android:padding="16dp">
+
+    <!-- ImageView para mostrar la imagen del álbum -->
+    <ImageView
+        android:id="@+id/albumImageView"
+        android:layout_width="64dp"
+        android:layout_height="64dp"
+        android:layout_gravity="center"
+        android:layout_marginEnd="16dp" />
+
+    <!-- LinearLayout para los textos -->
+    <LinearLayout
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:layout_gravity="center"
+        android:orientation="vertical">
+
+        <!-- TextView para mostrar el título de la canción -->
+        <TextView
+            android:id="@+id/songTitleTextView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="@android:color/black"
+            android:textSize="18sp" />
+
+        <!-- TextView para mostrar el autor de la canción -->
+        <TextView
+            android:id="@+id/authorTextView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="@android:color/black"
+            android:textSize="16sp" />
+
+        <!-- TextView para mostrar el nombre del álbum -->
+        <TextView
+            android:id="@+id/albumTextView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="@android:color/black"
+            android:textSize="16sp" />
+    </LinearLayout>
+
+</androidx.appcompat.widget.LinearLayoutCompat>
