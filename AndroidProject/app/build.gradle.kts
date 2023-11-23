@@ -4,11 +4,11 @@ plugins {
 
 android {
     namespace = "com.faunog.m08_act03"
-    compileSdk = 33
+    compileSdk = 34
 
     defaultConfig {
         applicationId = "com.faunog.m08_act03"
-        minSdk = 28
+        minSdk = 25
         targetSdk = 33
         versionCode = 1
         versionName = "1.0"
