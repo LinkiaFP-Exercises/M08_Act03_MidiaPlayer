@@ -1,0 +1,18 @@
+<resources>
+    <string name="app_name">MediaPlayer M08_Act03</string>
+    <string name="item_song_contentDescription">Imagen del Álbum</string>
+    <string name="activity_media_player_TextView_TOP">Reproductor de Música</string>
+    <string name="activity_media_player_ButtonPlay">▶️</string>
+    <string name="activity_media_player_ButtonPause">⏸️</string>
+    <string name="activity_media_player_ButtonStop">⏹️</string>
+    <string name="activity_media_player_ButtonForward">⏩</string>
+    <string name="activity_media_player_ButtonBackward">⏪</string>
+    <string name="activity_media_player_ButtonNext">⏭️</string>
+    <string name="activity_media_player_ButtonPrevious">⏮️</string>
+    <string name="activity_main_TextView_TOP">Lista de Canciones</string>
+    <string name="activity_media_player_songTitleTextView">Unknown Title</string>
+    <string name="activity_media_player_authorTextView">Unknown Author</string>
+    <string name="activity_media_player_albumTitleTextView">Unknown Album</string>
+    <string name="activity_media_player_albumImageView">Imagen del Album</string>
+    <string name="menu_toobar_action_back">Lista de Músicas</string>
+</resources>
