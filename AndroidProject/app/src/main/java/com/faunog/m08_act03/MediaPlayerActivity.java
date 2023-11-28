@@ -227,7 +227,7 @@ public class MediaPlayerActivity extends AppCompatActivity {
             mediaPlayer.setLooping(true); // Repetir la canción
             inflateMediaPlayerCharacteristics();
         } catch (IOException e) {
-            Log.e("MediaPlayerActivity", "Error en Try mediaPlayer.setDataSource(songPath):\n" + e.getMessage(), e);
+            Log.e("MediaPlayerActivity", "Error in initializeMediaPlayerElements():\n" + e.getMessage(), e);
         }
 
     }
