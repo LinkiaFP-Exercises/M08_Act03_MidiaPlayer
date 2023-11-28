@@ -37,13 +37,6 @@ public class MediaPlayerActivity extends AppCompatActivity {
         initializeInterfaceElements();
         setSupportActionBar(toolbar);
         initializeMediaPlayerElements();
-        try {
-            mediaPlayer.setDataSource(songPath);
-            mediaPlayer.prepare();
-        } catch (IOException e) {
-            Log.e("MediaPlayerActivity", "Error en Try mediaPlayer.setDataSource(songPath):\n" + e.getMessage(), e);
-        }
-        mediaPlayer.setLooping(true); // Repetir la canción
 
         // Configura los listeners para los botones
         playPauseButton.setOnClickListener(v -> {
@@ -204,6 +197,17 @@ public class MediaPlayerActivity extends AppCompatActivity {
         Intent intent = getIntent();
         songList = intent.getStringArrayListExtra("SONG_LIST");
         songPath = intent.getStringExtra("SONG_PATH");
+
+        try {
+            mediaPlayer.setDataSource(songPath);
+            mediaPlayer.prepare();
+            mediaPlayer.setLooping(true); // Repetir la canción
+            inflateMediaPlayerCharacteristics();
+        } catch (IOException e) {
+            Log.e("MediaPlayerActivity", "Error en Try mediaPlayer.setDataSource(songPath):\n" + e.getMessage(), e);
+        }
+
+    }
 
     /**
      * @noinspection resource
