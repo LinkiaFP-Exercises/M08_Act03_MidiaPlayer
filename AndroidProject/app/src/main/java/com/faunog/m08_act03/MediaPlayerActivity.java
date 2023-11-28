@@ -26,7 +26,6 @@ public class MediaPlayerActivity extends AppCompatActivity {
     private SeekBar seekBar;
     private MediaPlayer mediaPlayer;
     private List<String> songList;
-    private String songPath;
     private int currentSongPosition = 0;
 
     @Override
@@ -202,7 +201,8 @@ public class MediaPlayerActivity extends AppCompatActivity {
         mediaPlayer = new MediaPlayer();
         Intent intent = getIntent();
         songList = intent.getStringArrayListExtra("SONG_LIST");
-        songPath = intent.getStringExtra("SONG_PATH");
+        String songPath = intent.getStringExtra("SONG_PATH");
+        currentSongPosition = songList.indexOf(songPath);
 
         try {
             mediaPlayer.setDataSource(songPath);
