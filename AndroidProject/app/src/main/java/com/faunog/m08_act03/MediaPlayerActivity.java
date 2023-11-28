@@ -6,8 +6,11 @@ import android.graphics.BitmapFactory;
 import android.media.MediaMetadataRetriever;
 import android.media.MediaPlayer;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.SystemClock;
 import android.util.Log;
 import android.widget.Button;
+import android.widget.Chronometer;
 import android.widget.ImageView;
 import android.widget.SeekBar;
 import android.widget.TextView;
@@ -24,9 +27,12 @@ public class MediaPlayerActivity extends AppCompatActivity {
     public ImageView albumImageView;
     private Button playPauseButton, stopButton, forwardButton, backwardButton, nextButton, prevButton;
     private SeekBar seekBar;
+    private Chronometer chronometerStart, chronometerEnd;
     private MediaPlayer mediaPlayer;
     private List<String> songList;
     private int currentSongPosition = 0;
+    private int totalDuration, currentSongPosition = 0;
+    private final Handler handler = new Handler();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -45,6 +51,7 @@ public class MediaPlayerActivity extends AppCompatActivity {
                 mediaPlayer.start();
                 playPauseButton.setText(getString(R.string.activity_media_player_ButtonPause));
             }
+            updateSeekBar();
         });
 
         stopButton.setOnClickListener(v -> {
@@ -76,7 +83,6 @@ public class MediaPlayerActivity extends AppCompatActivity {
                     mediaPlayer.setDataSource(songList.get(currentSongPosition));
                     mediaPlayer.prepare();
                     mediaPlayer.start();
-                    updateSeekBar();
                     inflateMediaPlayerCharacteristics();
                 } catch (IOException e) {
                     Log.e("MediaPlayerActivity", "Error al reproducir la siguiente canción:\n" + e.getMessage(), e);
@@ -88,6 +94,7 @@ public class MediaPlayerActivity extends AppCompatActivity {
                 mediaPlayer.stop();
                 mediaPlayer.reset();
             }
+            updateSeekBar();
         });
 
         prevButton.setOnClickListener(v -> {
@@ -100,7 +107,6 @@ public class MediaPlayerActivity extends AppCompatActivity {
                     mediaPlayer.setDataSource(songList.get(currentSongPosition));
                     mediaPlayer.prepare();
                     mediaPlayer.start();
-                    updateSeekBar();
                     inflateMediaPlayerCharacteristics();
                 } catch (IOException e) {
                     Log.e("MediaPlayerActivity", "Error al reproducir la canción anterior:\n" + e.getMessage(), e);
@@ -112,6 +118,7 @@ public class MediaPlayerActivity extends AppCompatActivity {
                 mediaPlayer.stop();
                 mediaPlayer.reset();
             }
+            updateSeekBar();
         });
 
 
@@ -122,6 +129,7 @@ public class MediaPlayerActivity extends AppCompatActivity {
                 // Actualiza la posición de reproducción según sea necesario
                 if (fromUser) {
                     mediaPlayer.seekTo(progress);
+                    updateChronometers(progress);
                 }
             }
 
@@ -144,10 +152,6 @@ public class MediaPlayerActivity extends AppCompatActivity {
             }
         });
 
-
-        // Actualiza la barra de progreso de la canción
-        updateSeekBar();
-
         // Configura el listener para el final de la canción
         mediaPlayer.setOnCompletionListener(mp -> {
             // Incrementa la posición actual para reproducir la siguiente canción
@@ -164,7 +168,6 @@ public class MediaPlayerActivity extends AppCompatActivity {
                     // Actualiza el botón de reproducción
                     playPauseButton.setText(getString(R.string.activity_media_player_ButtonPause));
 
-                    updateSeekBar();  // Asegúrate de actualizar la barra de progreso
                 } catch (IOException e) {
                     Log.e("MediaPlayerActivity", "Error en mediaPlayer.setOnCompletionListener:\n" + e.getMessage(), e);
                 }
@@ -175,6 +178,7 @@ public class MediaPlayerActivity extends AppCompatActivity {
                 mediaPlayer.stop();
                 mediaPlayer.reset();
             }
+            updateSeekBar();
         });
 
     }
@@ -194,6 +198,8 @@ public class MediaPlayerActivity extends AppCompatActivity {
         nextButton = findViewById(R.id.nextButton);
         prevButton = findViewById(R.id.prevButton);
         seekBar = findViewById(R.id.seekBar);
+        chronometerStart = findViewById(R.id.chronometerStart);
+        chronometerEnd = findViewById(R.id.chronometerEnd);
     }
 
     private void toolbarNavigationFunction() {
@@ -226,6 +232,7 @@ public class MediaPlayerActivity extends AppCompatActivity {
             mediaPlayer.start();
             mediaPlayer.setLooping(true); // Repetir la canción
             inflateMediaPlayerCharacteristics();
+            updateSeekBar();
         } catch (IOException e) {
             Log.e("MediaPlayerActivity", "Error in initializeMediaPlayerElements():\n" + e.getMessage(), e);
         }
@@ -277,10 +284,25 @@ public class MediaPlayerActivity extends AppCompatActivity {
 
     // Método para actualizar la barra de progreso
     private void updateSeekBar() {
-        seekBar.setProgress(mediaPlayer.getCurrentPosition());
-        if (mediaPlayer.isPlaying()) {
-            Runnable runnable = this::updateSeekBar;
-            seekBar.postDelayed(runnable, 1000); // Actualiza cada segundo
+        int currentDuration = mediaPlayer.getCurrentPosition();
+        totalDuration = mediaPlayer.getDuration();
+        seekBar.setMax(totalDuration);
+        seekBar.setProgress(currentDuration);
+        updateChronometers(currentDuration);
+        if (mediaPlayer.isPlaying() && currentDuration < totalDuration) {
+            handler.postDelayed(this::updateSeekBar, 1000); // Actualiza cada segundo
         }
+    }
+
+    private void updateChronometers(int currentDuration) {
+        int remainingDuration = totalDuration - currentDuration;
+
+        // Actualiza el cronómetro de tiempo creciente
+        chronometerStart.setBase(SystemClock.elapsedRealtime() - currentDuration);
+        chronometerStart.start();
+
+        // Actualiza el cronómetro de tiempo decreciente
+        chronometerEnd.setBase(SystemClock.elapsedRealtime() + remainingDuration);
+        chronometerEnd.start();
     }
 }
