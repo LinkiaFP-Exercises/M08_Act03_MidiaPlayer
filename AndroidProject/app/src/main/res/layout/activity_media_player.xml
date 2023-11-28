@@ -69,12 +69,41 @@
             android:textSize="16sp"
             android:textStyle="italic" />
 
-        <SeekBar
-            android:id="@+id/seekBar"
+        <!-- Contenedor para la SeekBar y los cronómetros -->
+        <RelativeLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="32dp"
-            android:padding="16dp" />
+            android:layout_height="wrap_content">
+
+            <SeekBar
+                android:id="@+id/seekBar"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="32dp"
+                android:padding="16dp" />
+
+            <!-- Cronómetro para el tiempo creciente -->
+            <Chronometer
+                android:id="@+id/chronometerStart"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignTop="@id/seekBar"
+                android:layout_alignParentStart="true"
+                android:layout_alignParentLeft="true"
+                android:textColor="@android:color/black"
+                android:textSize="12sp" />
+
+            <!-- Cronómetro para el tiempo decreciente -->
+            <Chronometer
+                android:id="@+id/chronometerEnd"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignTop="@id/seekBar"
+                android:layout_alignParentEnd="true"
+                android:layout_alignParentRight="true"
+                android:textColor="@android:color/black"
+                android:textSize="12sp" />
+
+        </RelativeLayout>
 
         <LinearLayout
             android:layout_width="match_parent"
