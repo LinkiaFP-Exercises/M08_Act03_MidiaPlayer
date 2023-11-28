@@ -108,7 +108,7 @@
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:text="@string/activity_media_player_ButtonPlay" />
+                android:text="@string/activity_media_player_ButtonPause" />
 
             <Button
                 android:id="@+id/forwardButton"

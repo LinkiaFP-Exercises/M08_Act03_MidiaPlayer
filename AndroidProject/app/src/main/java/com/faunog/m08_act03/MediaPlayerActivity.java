@@ -223,6 +223,7 @@ public class MediaPlayerActivity extends AppCompatActivity {
         try {
             mediaPlayer.setDataSource(songPath);
             mediaPlayer.prepare();
+            mediaPlayer.start();
             mediaPlayer.setLooping(true); // Repetir la canción
             inflateMediaPlayerCharacteristics();
         } catch (IOException e) {
