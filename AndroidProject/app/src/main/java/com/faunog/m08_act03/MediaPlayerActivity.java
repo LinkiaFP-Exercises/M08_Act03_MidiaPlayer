@@ -32,9 +32,8 @@ public class MediaPlayerActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_media_player);
-
+        toolbarNavigationFunction();
         initializeInterfaceElements();
-        setSupportActionBar(toolbar);
         initializeMediaPlayerElements();
 
         // Configura los listeners para los botones
@@ -195,6 +194,23 @@ public class MediaPlayerActivity extends AppCompatActivity {
         nextButton = findViewById(R.id.nextButton);
         prevButton = findViewById(R.id.prevButton);
         seekBar = findViewById(R.id.seekBar);
+    }
+
+    private void toolbarNavigationFunction() {
+        toolbar = findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
+
+        if (getSupportActionBar() != null) {
+            getSupportActionBar().setTitle(getString(R.string.app_name));
+            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+            getSupportActionBar().setDisplayShowHomeEnabled(true);
+        }
+
+        toolbar.setNavigationOnClickListener(v -> {
+            Intent intent = new Intent(this, M08_Act03_MidiaPlayer.class);
+            this.startActivity(intent);
+            this.finish();
+        });
     }
 
     private void initializeMediaPlayerElements() {
