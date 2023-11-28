@@ -41,7 +41,6 @@ public class MediaPlayerActivity extends AppCompatActivity {
         initializeInterfaceElements();
         initializeMediaPlayerElements();
 
-        // Configura los listeners para los botones
         playPauseButton.setOnClickListener(v -> {
             if (mediaPlayer.isPlaying()) {
                 mediaPlayer.pause();
@@ -111,8 +110,6 @@ public class MediaPlayerActivity extends AppCompatActivity {
                     Log.e("MediaPlayerActivity", "Error al reproducir la canción anterior:\n" + e.getMessage(), e);
                 }
             } else {
-                // Estás en la primera canción, puedes decidir qué hacer aquí
-                // Por ejemplo, volver al final o detener la reproducción
                 currentSongPosition = songList.size() - 1;
                 mediaPlayer.stop();
                 mediaPlayer.reset();
@@ -121,7 +118,6 @@ public class MediaPlayerActivity extends AppCompatActivity {
         });
 
 
-        // Configura el listener para la barra de progreso
         seekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
@@ -134,8 +130,6 @@ public class MediaPlayerActivity extends AppCompatActivity {
 
             @Override
             public void onStartTrackingTouch(SeekBar seekBar) {
-                // Puedes realizar acciones cuando el usuario comienza a arrastrar la barra
-                // Por ejemplo, pausar la reproducción si está en curso
                 if (mediaPlayer.isPlaying()) {
                     mediaPlayer.pause();
                 }
@@ -143,15 +137,12 @@ public class MediaPlayerActivity extends AppCompatActivity {
 
             @Override
             public void onStopTrackingTouch(SeekBar seekBar) {
-                // Puedes realizar acciones cuando el usuario deja de arrastrar la barra
-                // Por ejemplo, reanudar la reproducción si estaba pausada
                 if (!mediaPlayer.isPlaying()) {
                     mediaPlayer.start();
                 }
             }
         });
 
-        // Configura el listener para el final de la canción
         mediaPlayer.setOnCompletionListener(mp -> {
             currentSongPosition++;
 
@@ -279,7 +270,6 @@ public class MediaPlayerActivity extends AppCompatActivity {
         }
     }
 
-    // Método para actualizar la barra de progreso
     private void updateSeekBar() {
         int currentDuration = mediaPlayer.getCurrentPosition();
         totalDuration = mediaPlayer.getDuration();
@@ -294,7 +284,6 @@ public class MediaPlayerActivity extends AppCompatActivity {
     private void updateChronometers(int currentDuration) {
         int remainingDuration = totalDuration - currentDuration;
 
-        // Actualiza el cronómetro de tiempo creciente
         chronometerStart.setBase(SystemClock.elapsedRealtime() - currentDuration);
         chronometerStart.start();
 
