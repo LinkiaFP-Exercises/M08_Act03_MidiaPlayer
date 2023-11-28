@@ -163,6 +163,9 @@ public class MediaPlayerActivity extends AppCompatActivity {
                     mediaPlayer.setDataSource(songList.get(currentSongPosition));
                     mediaPlayer.prepare();
                     mediaPlayer.start();
+                    // Actualiza el botón de reproducción
+                    playPauseButton.setText(getString(R.string.activity_media_player_ButtonPause));
+
                     updateSeekBar();  // Asegúrate de actualizar la barra de progreso
                 } catch (IOException e) {
                     Log.e("MediaPlayerActivity", "Error en mediaPlayer.setOnCompletionListener:\n" + e.getMessage(), e);
