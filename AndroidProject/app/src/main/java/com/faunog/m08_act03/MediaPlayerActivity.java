@@ -30,7 +30,6 @@ public class MediaPlayerActivity extends AppCompatActivity {
     private Chronometer chronometerStart, chronometerEnd;
     private MediaPlayer mediaPlayer;
     private List<String> songList;
-    private int currentSongPosition = 0;
     private int totalDuration, currentSongPosition = 0;
     private final Handler handler = new Handler();
 
@@ -154,29 +153,29 @@ public class MediaPlayerActivity extends AppCompatActivity {
 
         // Configura el listener para el final de la canción
         mediaPlayer.setOnCompletionListener(mp -> {
-            // Incrementa la posición actual para reproducir la siguiente canción
             currentSongPosition++;
 
-            // Verifica si llegaste al final de la lista
             if (currentSongPosition < songList.size()) {
-                // Configura la nueva fuente de datos y comienza la reproducción
                 try {
                     mediaPlayer.reset();
                     mediaPlayer.setDataSource(songList.get(currentSongPosition));
                     mediaPlayer.prepare();
                     mediaPlayer.start();
-                    // Actualiza el botón de reproducción
                     playPauseButton.setText(getString(R.string.activity_media_player_ButtonPause));
-
                 } catch (IOException e) {
-                    Log.e("MediaPlayerActivity", "Error en mediaPlayer.setOnCompletionListener:\n" + e.getMessage(), e);
+                    Log.e("MediaPlayerActivity", "Error in IF setOnCompletionListener:\n" + e.getMessage(), e);
                 }
             } else {
-                // Llegaste al final de la lista, puedes decidir qué hacer aquí
-                // Por ejemplo, regresar al principio o detener la reproducción
-                currentSongPosition = 0;
-                mediaPlayer.stop();
-                mediaPlayer.reset();
+                try {
+                    currentSongPosition = 0;
+                    mediaPlayer.stop();
+                    mediaPlayer.reset();
+                    mediaPlayer.setDataSource(songList.get(currentSongPosition));
+                    mediaPlayer.prepare();
+                    playPauseButton.setText(getString(R.string.activity_media_player_ButtonPlay));
+                } catch (IOException e) {
+                    Log.e("MediaPlayerActivity", "Error in ELSE setOnCompletionListener:\n" + e.getMessage(), e);
+                }
             }
             updateSeekBar();
         });
@@ -230,13 +229,11 @@ public class MediaPlayerActivity extends AppCompatActivity {
             mediaPlayer.setDataSource(songPath);
             mediaPlayer.prepare();
             mediaPlayer.start();
-            mediaPlayer.setLooping(true); // Repetir la canción
             inflateMediaPlayerCharacteristics();
             updateSeekBar();
         } catch (IOException e) {
             Log.e("MediaPlayerActivity", "Error in initializeMediaPlayerElements():\n" + e.getMessage(), e);
         }
-
     }
 
     /**
