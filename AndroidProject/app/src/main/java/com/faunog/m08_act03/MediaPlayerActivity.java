@@ -71,52 +71,21 @@ public class MediaPlayerActivity extends AppCompatActivity {
             updateSeekBar();
         });
 
-        nextButton.setOnClickListener(v -> {
-            if (currentSongPosition < songList.size() - 1) {
-                // Hay una siguiente canción en la lista
-                currentSongPosition++;
-
-                try {
-                    mediaPlayer.reset();
-                    mediaPlayer.setDataSource(songList.get(currentSongPosition));
-                    mediaPlayer.prepare();
-                    mediaPlayer.start();
-                    inflateMediaPlayerCharacteristics();
-                } catch (IOException e) {
-                    Log.e("MediaPlayerActivity", "Error al reproducir la siguiente canción:\n" + e.getMessage(), e);
-                }
-            } else {
-                // Estás en la última canción, puedes decidir qué hacer aquí
-                // Por ejemplo, volver al principio o detener la reproducción
-                currentSongPosition = 0;
-                mediaPlayer.stop();
-                mediaPlayer.reset();
-            }
-            updateSeekBar();
-        });
+        nextButton.setOnClickListener(v -> playNextSongIfNotLastOrPrepareFirstSong());
 
         prevButton.setOnClickListener(v -> {
             if (currentSongPosition > 0) {
-                // Hay una canción anterior en la lista
                 currentSongPosition--;
-
-                try {
-                    mediaPlayer.reset();
-                    mediaPlayer.setDataSource(songList.get(currentSongPosition));
-                    mediaPlayer.prepare();
-                    mediaPlayer.start();
-                    inflateMediaPlayerCharacteristics();
-                } catch (IOException e) {
-                    Log.e("MediaPlayerActivity", "Error al reproducir la canción anterior:\n" + e.getMessage(), e);
-                }
+                resetMediaPlayerAndPlayNextSong();
             } else {
                 currentSongPosition = songList.size() - 1;
-                mediaPlayer.stop();
-                mediaPlayer.reset();
+                setSongPositionTo0AndPrepareForPlay();
             }
+            inflateMediaPlayerCharacteristics();
             updateSeekBar();
         });
 
+        mediaPlayer.setOnCompletionListener(mp -> playNextSongIfNotLastOrPrepareFirstSong());
 
         seekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
@@ -143,34 +112,42 @@ public class MediaPlayerActivity extends AppCompatActivity {
             }
         });
 
-        mediaPlayer.setOnCompletionListener(mp -> {
+    }
+
+    private void playNextSongIfNotLastOrPrepareFirstSong() {
+        if (currentSongPosition < songList.size() - 1) {
             currentSongPosition++;
+            resetMediaPlayerAndPlayNextSong();
+        } else {
+            currentSongPosition = 0;
+            setSongPositionTo0AndPrepareForPlay();
+        }
+        inflateMediaPlayerCharacteristics();
+        updateSeekBar();
+    }
 
-            if (currentSongPosition < songList.size()) {
-                try {
-                    mediaPlayer.reset();
-                    mediaPlayer.setDataSource(songList.get(currentSongPosition));
-                    mediaPlayer.prepare();
-                    mediaPlayer.start();
-                    playPauseButton.setText(getString(R.string.activity_media_player_ButtonPause));
-                } catch (IOException e) {
-                    Log.e("MediaPlayerActivity", "Error in IF setOnCompletionListener:\n" + e.getMessage(), e);
-                }
-            } else {
-                try {
-                    currentSongPosition = 0;
-                    mediaPlayer.stop();
-                    mediaPlayer.reset();
-                    mediaPlayer.setDataSource(songList.get(currentSongPosition));
-                    mediaPlayer.prepare();
-                    playPauseButton.setText(getString(R.string.activity_media_player_ButtonPlay));
-                } catch (IOException e) {
-                    Log.e("MediaPlayerActivity", "Error in ELSE setOnCompletionListener:\n" + e.getMessage(), e);
-                }
-            }
-            updateSeekBar();
-        });
+    private void resetMediaPlayerAndPlayNextSong() {
+        try {
+            mediaPlayer.reset();
+            mediaPlayer.setDataSource(songList.get(currentSongPosition));
+            mediaPlayer.prepare();
+            mediaPlayer.start();
+            playPauseButton.setText(getString(R.string.activity_media_player_ButtonPause));
+        } catch (IOException e) {
+            Log.e("MediaPlayerActivity", "Error resetMediaPlayerAndPlayNextSong:\n" + e.getMessage(), e);
+        }
+    }
 
+    private void setSongPositionTo0AndPrepareForPlay() {
+        try {
+            mediaPlayer.stop();
+            mediaPlayer.reset();
+            mediaPlayer.setDataSource(songList.get(currentSongPosition));
+            mediaPlayer.prepare();
+            playPauseButton.setText(getString(R.string.activity_media_player_ButtonPlay));
+        } catch (IOException e) {
+            Log.e("MediaPlayerActivity", "Error setSongPositionTo0AndPrepareForPlay:\n" + e.getMessage(), e);
+        }
     }
 
     private void initializeInterfaceElements() {
