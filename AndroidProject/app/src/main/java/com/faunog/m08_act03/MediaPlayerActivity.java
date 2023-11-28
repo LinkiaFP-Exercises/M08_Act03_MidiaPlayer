@@ -53,16 +53,19 @@ public class MediaPlayerActivity extends AppCompatActivity {
             mediaPlayer.seekTo(0);
             mediaPlayer.pause();
             playPauseButton.setText(getString(R.string.activity_media_player_ButtonPlay));
+            updateSeekBar();
         });
 
         forwardButton.setOnClickListener(v -> {
             int currentPosition = mediaPlayer.getCurrentPosition();
             mediaPlayer.seekTo(currentPosition + 10000); // Avanzar 10 segundos
+            updateSeekBar();
         });
 
         backwardButton.setOnClickListener(v -> {
             int currentPosition = mediaPlayer.getCurrentPosition();
             mediaPlayer.seekTo(currentPosition - 10000); // Retroceder 10 segundos
+            updateSeekBar();
         });
 
         nextButton.setOnClickListener(v -> {
