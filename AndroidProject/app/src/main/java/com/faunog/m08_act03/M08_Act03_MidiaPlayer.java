@@ -86,14 +86,14 @@ public class M08_Act03_MidiaPlayer extends AppCompatActivity {
     }
 
     private void checkAndRequestPermission() {
-        String[] permissions = {Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE};
-
-        if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED
-                || ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
+        String[] permissions = {Manifest.permission.READ_EXTERNAL_STORAGE};
+        int read_external = ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE);
+        if (read_external != PackageManager.PERMISSION_GRANTED) {
             ActivityCompat.requestPermissions(this, permissions, MY_PERMISSIONS_REQUEST_READ_EXTERNAL_STORAGE);
         } else {
             reloadFiles();
         }
+
     }
 
 
