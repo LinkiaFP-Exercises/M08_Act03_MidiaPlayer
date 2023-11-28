@@ -248,13 +248,15 @@ public class MediaPlayerActivity extends AppCompatActivity {
     }
 
     private void updateSeekBar() {
-        int currentDuration = mediaPlayer.getCurrentPosition();
-        totalDuration = mediaPlayer.getDuration();
-        seekBar.setMax(totalDuration);
-        seekBar.setProgress(currentDuration);
-        updateChronometers(currentDuration);
-        if (mediaPlayer.isPlaying() && currentDuration < totalDuration) {
-            handler.postDelayed(this::updateSeekBar, 1000); // Actualiza cada segundo
+        if (mediaPlayer != null) {
+            int currentDuration = mediaPlayer.getCurrentPosition();
+            totalDuration = mediaPlayer.getDuration();
+            seekBar.setMax(totalDuration);
+            seekBar.setProgress(currentDuration);
+            updateChronometers(currentDuration);
+            if (mediaPlayer.isPlaying() && currentDuration < totalDuration) {
+                handler.postDelayed(this::updateSeekBar, 1000); // Actualiza cada segundo
+            }
         }
     }
 
@@ -262,10 +264,17 @@ public class MediaPlayerActivity extends AppCompatActivity {
         int remainingDuration = totalDuration - currentDuration;
 
         chronometerStart.setBase(SystemClock.elapsedRealtime() - currentDuration);
-        chronometerStart.start();
-
-        // Actualiza el cronómetro de tiempo decreciente
         chronometerEnd.setBase(SystemClock.elapsedRealtime() + remainingDuration);
-        chronometerEnd.start();
+
+        if (mediaPlayer.isPlaying()) {
+            chronometerStart.start();
+            chronometerEnd.start();
+        } else {
+            chronometerStart.stop();
+            chronometerEnd.stop();
+        }
     }
+
+    }
+
 }
