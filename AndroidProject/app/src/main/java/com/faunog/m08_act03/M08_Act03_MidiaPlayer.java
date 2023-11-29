@@ -8,7 +8,6 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
 import android.provider.Settings;
-import android.util.Log;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -62,7 +61,6 @@ public class M08_Act03_MidiaPlayer extends AppCompatActivity {
                     .map(File::getAbsolutePath)
                     .collect(Collectors.toList());
         }
-        Log.d("SongListSize", "Size: " + songList.size());
     }
 
     /**
