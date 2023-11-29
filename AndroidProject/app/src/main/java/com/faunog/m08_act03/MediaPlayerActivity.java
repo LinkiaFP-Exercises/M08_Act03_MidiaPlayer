@@ -174,7 +174,7 @@ public class MediaPlayerActivity extends AppCompatActivity {
         setSupportActionBar(toolbar);
 
         if (getSupportActionBar() != null) {
-            getSupportActionBar().setTitle(getString(R.string.app_name));
+            getSupportActionBar().setTitle(getString(R.string.activity_main_TextView_TOP));
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
             getSupportActionBar().setDisplayShowHomeEnabled(true);
         }
