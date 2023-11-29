@@ -20,70 +20,64 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 public class M08_Act03_MidiaPlayer extends AppCompatActivity {
-    private RecyclerView recyclerView;
-    private List<String> songList;
-
-    private static final int MY_PERMISSIONS_REQUEST_READ_EXTERNAL_STORAGE = 1;
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-
-        // Inicializa la lista de canciones
-        songList = new ArrayList<>();
-
-        // Encuentra la referencia al RecyclerView
-        recyclerView = findViewById(R.id.recyclerView);
-
-        recyclerView.setLayoutManager(new LinearLayoutManager(this));
-        // Crea el adaptador y agrega el OnItemClickListener
-        SongAdapter songAdapter = new SongAdapter(songList, this, songPath -> {
-            // Abre la actividad del reproductor de música y pasa la lista de canciones y la posición actual
-            Intent intent = new Intent(M08_Act03_MidiaPlayer.this, MediaPlayerActivity.class);
-            intent.putExtra("SONG_PATH", songPath);
-            intent.putStringArrayListExtra("SONG_LIST", new ArrayList<>(songList));
-            startActivity(intent);
-        });
-        recyclerView.setAdapter(songAdapter);
-
+        fillSongList();
+        buildRecyclerView();
         checkAndRequestPermission();
     }
 
-    // Método para cargar la lista de canciones en el directorio "Download"
-    private void loadSongList() {
-        String path = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS).toString();
-
-        File directory = new File(path);
-
-        File[] files = directory.listFiles();
+    private void fillSongList() {
+        String pathToDirectoryDownloads = Environment
+                .getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS).toString();
+        File directoryDownloads = new File(pathToDirectoryDownloads);
+        File[] files = directoryDownloads.listFiles();
         if (files != null) {
-            for (File file : files) {
-                if (file.getName().endsWith(".mp3")) {
-                    // Agrega el nombre de la canción a la lista
-                    songList.add(file.getAbsolutePath());
-                }
-            }
+            songList = Arrays.stream(files)
+                    .filter(file -> file.getName().endsWith(".mp3"))
+                    .map(File::getAbsolutePath)
+                    .collect(Collectors.toList());
         }
         Log.d("SongListSize", "Size: " + songList.size());
     }
 
+    private void buildRecyclerView() {
+        recyclerView = findViewById(R.id.recyclerView);
+        recyclerView.setLayoutManager(new LinearLayoutManager(this));
+        recyclerView.setAdapter(getSongAdapter());
+    }
+
+    @NonNull
+    private SongAdapter getSongAdapter() {
+        return new SongAdapter(songList, this, this::onSongClick);
+    }
+
+    private void onSongClick(String songPath) {
+        Intent intent = new Intent(M08_Act03_MidiaPlayer.this, MediaPlayerActivity.class);
+        intent.putExtra("SONG_PATH", songPath);
+        intent.putStringArrayListExtra("SONG_LIST", new ArrayList<>(songList));
+        startActivity(intent);
+    }
+
     @SuppressLint("NotifyDataSetChanged")
     private void reloadFiles() {
-        // Limpiar la lista actual
-        songList.clear();
+        List<String> oldList = new ArrayList<>(songList);
+        fillSongList();
 
-        // Volver a cargar los archivos MP3 desde la carpeta "Download"
-        loadSongList();
-
-        // Notificar al adaptador que los datos han cambiado
-        Objects.requireNonNull(recyclerView.getAdapter()).notifyDataSetChanged();
+        if (!oldList.equals(songList)) {
+            Objects.requireNonNull(recyclerView.getAdapter()).notifyDataSetChanged();
+        }
     }
+
 
     private void checkAndRequestPermission() {
         String[] permissions = {Manifest.permission.READ_EXTERNAL_STORAGE};
@@ -95,7 +89,6 @@ public class M08_Act03_MidiaPlayer extends AppCompatActivity {
         }
 
     }
-
 
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
@@ -110,12 +103,13 @@ public class M08_Act03_MidiaPlayer extends AppCompatActivity {
     }
 
     private void showPermissionDeniedMessage() {
-        // Muestra un mensaje al usuario informándole sobre la importancia del permiso
-        // y cómo puede otorgarlo manualmente a través de la configuración de la aplicación en el dispositivo.
-        // También puedes abrir la configuración de la aplicación directamente.
         Toast.makeText(this, "Es necesario el permiso para acceder a los archivos.", Toast.LENGTH_SHORT).show();
         Intent intent = new Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS, Uri.fromParts("package", getPackageName(), null));
         intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
         startActivity(intent);
     }
+
+    private RecyclerView recyclerView;
+    private List<String> songList;
+    private static final int MY_PERMISSIONS_REQUEST_READ_EXTERNAL_STORAGE = 1;
 }
