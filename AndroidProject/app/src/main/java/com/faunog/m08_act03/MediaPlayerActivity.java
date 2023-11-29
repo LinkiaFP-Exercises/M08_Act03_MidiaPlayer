@@ -6,8 +6,11 @@ import android.graphics.BitmapFactory;
 import android.media.MediaMetadataRetriever;
 import android.media.MediaPlayer;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.SystemClock;
 import android.util.Log;
 import android.widget.Button;
+import android.widget.Chronometer;
 import android.widget.ImageView;
 import android.widget.SeekBar;
 import android.widget.TextView;
@@ -24,21 +27,20 @@ public class MediaPlayerActivity extends AppCompatActivity {
     public ImageView albumImageView;
     private Button playPauseButton, stopButton, forwardButton, backwardButton, nextButton, prevButton;
     private SeekBar seekBar;
+    private Chronometer chronometerStart, chronometerEnd;
     private MediaPlayer mediaPlayer;
     private List<String> songList;
-    private String songPath;
-    private int currentSongPosition = 0;
+    private int totalDuration, currentSongPosition = 0;
+    private final Handler handler = new Handler();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_media_player);
-
+        toolbarNavigationFunction();
         initializeInterfaceElements();
-        setSupportActionBar(toolbar);
         initializeMediaPlayerElements();
 
-        // Configura los listeners para los botones
         playPauseButton.setOnClickListener(v -> {
             if (mediaPlayer.isPlaying()) {
                 mediaPlayer.pause();
@@ -47,6 +49,7 @@ public class MediaPlayerActivity extends AppCompatActivity {
                 mediaPlayer.start();
                 playPauseButton.setText(getString(R.string.activity_media_player_ButtonPause));
             }
+            updateSeekBar();
         });
 
         stopButton.setOnClickListener(v -> {
@@ -68,69 +71,34 @@ public class MediaPlayerActivity extends AppCompatActivity {
             updateSeekBar();
         });
 
-        nextButton.setOnClickListener(v -> {
-            if (currentSongPosition < songList.size() - 1) {
-                // Hay una siguiente canción en la lista
-                currentSongPosition++;
-
-                try {
-                    mediaPlayer.reset();
-                    mediaPlayer.setDataSource(songList.get(currentSongPosition));
-                    mediaPlayer.prepare();
-                    mediaPlayer.start();
-                    updateSeekBar();
-                    inflateMediaPlayerCharacteristics();
-                } catch (IOException e) {
-                    Log.e("MediaPlayerActivity", "Error al reproducir la siguiente canción:\n" + e.getMessage(), e);
-                }
-            } else {
-                // Estás en la última canción, puedes decidir qué hacer aquí
-                // Por ejemplo, volver al principio o detener la reproducción
-                currentSongPosition = 0;
-                mediaPlayer.stop();
-                mediaPlayer.reset();
-            }
-        });
+        nextButton.setOnClickListener(v -> playNextSongIfNotLastOrPrepareFirstSong());
 
         prevButton.setOnClickListener(v -> {
             if (currentSongPosition > 0) {
-                // Hay una canción anterior en la lista
                 currentSongPosition--;
-
-                try {
-                    mediaPlayer.reset();
-                    mediaPlayer.setDataSource(songList.get(currentSongPosition));
-                    mediaPlayer.prepare();
-                    mediaPlayer.start();
-                    updateSeekBar();
-                    inflateMediaPlayerCharacteristics();
-                } catch (IOException e) {
-                    Log.e("MediaPlayerActivity", "Error al reproducir la canción anterior:\n" + e.getMessage(), e);
-                }
+                resetMediaPlayerAndPlayNextSong();
             } else {
-                // Estás en la primera canción, puedes decidir qué hacer aquí
-                // Por ejemplo, volver al final o detener la reproducción
                 currentSongPosition = songList.size() - 1;
-                mediaPlayer.stop();
-                mediaPlayer.reset();
+                setSongPositionTo0AndPrepareForPlay();
             }
+            inflateMediaPlayerCharacteristics();
+            updateSeekBar();
         });
 
+        mediaPlayer.setOnCompletionListener(mp -> playNextSongIfNotLastOrPrepareFirstSong());
 
-        // Configura el listener para la barra de progreso
         seekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
                 // Actualiza la posición de reproducción según sea necesario
                 if (fromUser) {
                     mediaPlayer.seekTo(progress);
+                    updateChronometers(progress);
                 }
             }
 
             @Override
             public void onStartTrackingTouch(SeekBar seekBar) {
-                // Puedes realizar acciones cuando el usuario comienza a arrastrar la barra
-                // Por ejemplo, pausar la reproducción si está en curso
                 if (mediaPlayer.isPlaying()) {
                     mediaPlayer.pause();
                 }
@@ -138,47 +106,48 @@ public class MediaPlayerActivity extends AppCompatActivity {
 
             @Override
             public void onStopTrackingTouch(SeekBar seekBar) {
-                // Puedes realizar acciones cuando el usuario deja de arrastrar la barra
-                // Por ejemplo, reanudar la reproducción si estaba pausada
                 if (!mediaPlayer.isPlaying()) {
                     mediaPlayer.start();
                 }
             }
         });
 
+    }
 
-        // Actualiza la barra de progreso de la canción
-        updateSeekBar();
-
-        // Configura el listener para el final de la canción
-        mediaPlayer.setOnCompletionListener(mp -> {
-            // Incrementa la posición actual para reproducir la siguiente canción
+    private void playNextSongIfNotLastOrPrepareFirstSong() {
+        if (currentSongPosition < songList.size() - 1) {
             currentSongPosition++;
+            resetMediaPlayerAndPlayNextSong();
+        } else {
+            currentSongPosition = 0;
+            setSongPositionTo0AndPrepareForPlay();
+        }
+        inflateMediaPlayerCharacteristics();
+        updateSeekBar();
+    }
 
-            // Verifica si llegaste al final de la lista
-            if (currentSongPosition < songList.size()) {
-                // Configura la nueva fuente de datos y comienza la reproducción
-                try {
-                    mediaPlayer.reset();
-                    mediaPlayer.setDataSource(songList.get(currentSongPosition));
-                    mediaPlayer.prepare();
-                    mediaPlayer.start();
-                    // Actualiza el botón de reproducción
-                    playPauseButton.setText(getString(R.string.activity_media_player_ButtonPause));
+    private void resetMediaPlayerAndPlayNextSong() {
+        try {
+            mediaPlayer.reset();
+            mediaPlayer.setDataSource(songList.get(currentSongPosition));
+            mediaPlayer.prepare();
+            mediaPlayer.start();
+            playPauseButton.setText(getString(R.string.activity_media_player_ButtonPause));
+        } catch (IOException e) {
+            Log.e("MediaPlayerActivity", "Error resetMediaPlayerAndPlayNextSong:\n" + e.getMessage(), e);
+        }
+    }
 
-                    updateSeekBar();  // Asegúrate de actualizar la barra de progreso
-                } catch (IOException e) {
-                    Log.e("MediaPlayerActivity", "Error en mediaPlayer.setOnCompletionListener:\n" + e.getMessage(), e);
-                }
-            } else {
-                // Llegaste al final de la lista, puedes decidir qué hacer aquí
-                // Por ejemplo, regresar al principio o detener la reproducción
-                currentSongPosition = 0;
-                mediaPlayer.stop();
-                mediaPlayer.reset();
-            }
-        });
-
+    private void setSongPositionTo0AndPrepareForPlay() {
+        try {
+            mediaPlayer.stop();
+            mediaPlayer.reset();
+            mediaPlayer.setDataSource(songList.get(currentSongPosition));
+            mediaPlayer.prepare();
+            playPauseButton.setText(getString(R.string.activity_media_player_ButtonPlay));
+        } catch (IOException e) {
+            Log.e("MediaPlayerActivity", "Error setSongPositionTo0AndPrepareForPlay:\n" + e.getMessage(), e);
+        }
     }
 
     private void initializeInterfaceElements() {
@@ -196,23 +165,43 @@ public class MediaPlayerActivity extends AppCompatActivity {
         nextButton = findViewById(R.id.nextButton);
         prevButton = findViewById(R.id.prevButton);
         seekBar = findViewById(R.id.seekBar);
+        chronometerStart = findViewById(R.id.chronometerStart);
+        chronometerEnd = findViewById(R.id.chronometerEnd);
+    }
+
+    private void toolbarNavigationFunction() {
+        toolbar = findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
+
+        if (getSupportActionBar() != null) {
+            getSupportActionBar().setTitle(getString(R.string.activity_main_TextView_TOP));
+            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+            getSupportActionBar().setDisplayShowHomeEnabled(true);
+        }
+
+        toolbar.setNavigationOnClickListener(v -> {
+            Intent intent = new Intent(this, M08_Act03_MidiaPlayer.class);
+            this.startActivity(intent);
+            this.finish();
+        });
     }
 
     private void initializeMediaPlayerElements() {
         mediaPlayer = new MediaPlayer();
         Intent intent = getIntent();
         songList = intent.getStringArrayListExtra("SONG_LIST");
-        songPath = intent.getStringExtra("SONG_PATH");
+        String songPath = intent.getStringExtra("SONG_PATH");
+        currentSongPosition = songList.indexOf(songPath);
 
         try {
             mediaPlayer.setDataSource(songPath);
             mediaPlayer.prepare();
-            mediaPlayer.setLooping(true); // Repetir la canción
+            mediaPlayer.start();
             inflateMediaPlayerCharacteristics();
+            updateSeekBar();
         } catch (IOException e) {
-            Log.e("MediaPlayerActivity", "Error en Try mediaPlayer.setDataSource(songPath):\n" + e.getMessage(), e);
+            Log.e("MediaPlayerActivity", "Error in initializeMediaPlayerElements():\n" + e.getMessage(), e);
         }
-
     }
 
     /**
@@ -258,12 +247,44 @@ public class MediaPlayerActivity extends AppCompatActivity {
         }
     }
 
-    // Método para actualizar la barra de progreso
     private void updateSeekBar() {
-        seekBar.setProgress(mediaPlayer.getCurrentPosition());
-        if (mediaPlayer.isPlaying()) {
-            Runnable runnable = this::updateSeekBar;
-            seekBar.postDelayed(runnable, 1000); // Actualiza cada segundo
+        if (mediaPlayer != null) {
+            int currentDuration = mediaPlayer.getCurrentPosition();
+            totalDuration = mediaPlayer.getDuration();
+            seekBar.setMax(totalDuration);
+            seekBar.setProgress(currentDuration);
+            updateChronometers(currentDuration);
+            if (mediaPlayer.isPlaying() && currentDuration < totalDuration) {
+                handler.postDelayed(this::updateSeekBar, 1000); // Actualiza cada segundo
+            }
         }
     }
+
+    private void updateChronometers(int currentDuration) {
+        int remainingDuration = totalDuration - currentDuration;
+
+        chronometerStart.setBase(SystemClock.elapsedRealtime() - currentDuration);
+        chronometerEnd.setBase(SystemClock.elapsedRealtime() + remainingDuration);
+
+        if (mediaPlayer.isPlaying()) {
+            chronometerStart.start();
+            chronometerEnd.start();
+        } else {
+            chronometerStart.stop();
+            chronometerEnd.stop();
+        }
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+
+        handler.removeCallbacksAndMessages(null);
+
+        if (mediaPlayer != null) {
+            mediaPlayer.release();
+            mediaPlayer = null;
+        }
+    }
+
 }
