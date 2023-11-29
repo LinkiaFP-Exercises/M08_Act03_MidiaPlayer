@@ -9,12 +9,14 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.SystemClock;
 import android.util.Log;
+import android.view.View;
 import android.widget.Button;
 import android.widget.Chronometer;
 import android.widget.ImageView;
 import android.widget.SeekBar;
 import android.widget.TextView;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 
@@ -22,16 +24,6 @@ import java.io.IOException;
 import java.util.List;
 
 public class MediaPlayerActivity extends AppCompatActivity {
-    private Toolbar toolbar;
-    public TextView songTitleTextView, authorTextView, albumTextView;
-    public ImageView albumImageView;
-    private Button playPauseButton, stopButton, forwardButton, backwardButton, nextButton, prevButton;
-    private SeekBar seekBar;
-    private Chronometer chronometerStart, chronometerEnd;
-    private MediaPlayer mediaPlayer;
-    private List<String> songList;
-    private int totalDuration, currentSongPosition = 0;
-    private final Handler handler = new Handler();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -40,54 +32,62 @@ public class MediaPlayerActivity extends AppCompatActivity {
         toolbarNavigationFunction();
         initializeInterfaceElements();
         initializeMediaPlayerElements();
+        playPauseButton.setOnClickListener(this::onClickPlayPauseButton);
+        stopButton.setOnClickListener(this::onClickStopButton);
+        forwardButton.setOnClickListener(this::onClickForwardButton);
+        backwardButton.setOnClickListener(this::onClickBackwardButton);
+        nextButton.setOnClickListener(v -> playNextSongIfNotLastOrPrepareFirstSong());
+        prevButton.setOnClickListener(this::onClickPrevButton);
+        mediaPlayer.setOnCompletionListener(mp -> playNextSongIfNotLastOrPrepareFirstSong());
+        seekBar.setOnSeekBarChangeListener(getOnSeekBarChangeListener());
 
-        playPauseButton.setOnClickListener(v -> {
-            if (mediaPlayer.isPlaying()) {
-                mediaPlayer.pause();
-                playPauseButton.setText(getString(R.string.activity_media_player_ButtonPlay));
-            } else {
-                mediaPlayer.start();
-                playPauseButton.setText(getString(R.string.activity_media_player_ButtonPause));
-            }
-            updateSeekBar();
-        });
+    }
 
-        stopButton.setOnClickListener(v -> {
-            mediaPlayer.seekTo(0);
+    private void onClickPlayPauseButton(View view) {
+        if (mediaPlayer.isPlaying()) {
             mediaPlayer.pause();
             playPauseButton.setText(getString(R.string.activity_media_player_ButtonPlay));
-            updateSeekBar();
-        });
+        } else {
+            mediaPlayer.start();
+            playPauseButton.setText(getString(R.string.activity_media_player_ButtonPause));
+        }
+        updateSeekBar();
+    }
 
-        forwardButton.setOnClickListener(v -> {
-            int currentPosition = mediaPlayer.getCurrentPosition();
-            mediaPlayer.seekTo(currentPosition + 10000); // Avanzar 10 segundos
-            updateSeekBar();
-        });
+    private void onClickStopButton(View view) {
+        mediaPlayer.seekTo(0);
+        mediaPlayer.pause();
+        playPauseButton.setText(getString(R.string.activity_media_player_ButtonPlay));
+        updateSeekBar();
+    }
 
-        backwardButton.setOnClickListener(v -> {
-            int currentPosition = mediaPlayer.getCurrentPosition();
-            mediaPlayer.seekTo(currentPosition - 10000); // Retroceder 10 segundos
-            updateSeekBar();
-        });
+    private void onClickForwardButton(View view) {
+        int currentPosition = mediaPlayer.getCurrentPosition();
+        mediaPlayer.seekTo(currentPosition + 10000); // Avanzar 10 segundos
+        updateSeekBar();
+    }
 
-        nextButton.setOnClickListener(v -> playNextSongIfNotLastOrPrepareFirstSong());
+    private void onClickBackwardButton(View view) {
+        int currentPosition = mediaPlayer.getCurrentPosition();
+        mediaPlayer.seekTo(currentPosition - 10000); // Retroceder 10 segundos
+        updateSeekBar();
+    }
 
-        prevButton.setOnClickListener(v -> {
-            if (currentSongPosition > 0) {
-                currentSongPosition--;
-                resetMediaPlayerAndPlayNextSong();
-            } else {
-                currentSongPosition = songList.size() - 1;
-                setSongPositionTo0AndPrepareForPlay();
-            }
-            inflateMediaPlayerCharacteristics();
-            updateSeekBar();
-        });
+    private void onClickPrevButton(View view) {
+        if (currentSongPosition > 0) {
+            currentSongPosition--;
+            resetMediaPlayerAndPlayNextSong();
+        } else {
+            currentSongPosition = songList.size() - 1;
+            setSongPositionTo0AndPrepareForPlay();
+        }
+        inflateMediaPlayerCharacteristics();
+        updateSeekBar();
+    }
 
-        mediaPlayer.setOnCompletionListener(mp -> playNextSongIfNotLastOrPrepareFirstSong());
-
-        seekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+    @NonNull
+    private SeekBar.OnSeekBarChangeListener getOnSeekBarChangeListener() {
+        return new SeekBar.OnSeekBarChangeListener() {
             @Override
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
                 // Actualiza la posición de reproducción según sea necesario
@@ -110,8 +110,7 @@ public class MediaPlayerActivity extends AppCompatActivity {
                     mediaPlayer.start();
                 }
             }
-        });
-
+        };
     }
 
     private void playNextSongIfNotLastOrPrepareFirstSong() {
@@ -287,4 +286,14 @@ public class MediaPlayerActivity extends AppCompatActivity {
         }
     }
 
+    private Toolbar toolbar;
+    public TextView songTitleTextView, authorTextView, albumTextView;
+    public ImageView albumImageView;
+    private Button playPauseButton, stopButton, forwardButton, backwardButton, nextButton, prevButton;
+    private SeekBar seekBar;
+    private Chronometer chronometerStart, chronometerEnd;
+    private MediaPlayer mediaPlayer;
+    private List<String> songList;
+    private int totalDuration, currentSongPosition = 0;
+    private final Handler handler = new Handler();
 }
