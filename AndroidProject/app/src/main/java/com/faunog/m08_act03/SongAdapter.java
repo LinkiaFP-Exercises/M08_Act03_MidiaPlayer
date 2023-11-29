@@ -42,55 +42,6 @@ public class SongAdapter extends RecyclerView.Adapter<SongAdapter.ViewHolder> {
     }
 
     /**
-     * ViewHolder que representa la vista de cada elemento en el RecyclerView.
-     */
-    public class ViewHolder extends RecyclerView.ViewHolder {
-
-        /**
-         * Constructor del ViewHolder.
-         *
-         * @param itemView Vista de un elemento en la lista.
-         */
-        public ViewHolder(@NonNull View itemView) {
-            super(itemView);
-            initializeInterfaceElements(itemView);
-            itemView.setOnClickListener(this::onClickItenView);
-        }
-
-
-        /**
-         * Inicializa los elementos de la interfaz dentro del ViewHolder.
-         *
-         * @param itemView Vista de un elemento en la lista.
-         */
-        private void initializeInterfaceElements(@NonNull View itemView) {
-            songTitleTextView = itemView.findViewById(R.id.songTitleTextView);
-            authorTextView = itemView.findViewById(R.id.authorTextView);
-            albumTextView = itemView.findViewById(R.id.albumTextView);
-            albumImageView = itemView.findViewById(R.id.albumImageView);
-        }
-
-
-        /**
-         * Maneja el evento de clic en un elemento de la lista.
-         *
-         * @param view Vista del elemento en el que se hizo clic.
-         */
-        private void onClickItenView(View view) {
-            int position = getAdapterPosition();
-            if (position != RecyclerView.NO_POSITION && listener != null) {
-                listener.onItemClick(songList.get(position));
-            }
-        }
-
-        // Variables de clase ViewHolder
-        public TextView songTitleTextView;
-        public TextView authorTextView;
-        public TextView albumTextView;
-        public ImageView albumImageView;
-    }
-
-    /**
      * Crea una nueva instancia de ViewHolder cuando se necesita.
      *
      * @param parent   Vista padre a la que se adjuntará el nuevo ViewHolder.
@@ -173,13 +124,6 @@ public class SongAdapter extends RecyclerView.Adapter<SongAdapter.ViewHolder> {
     }
 
     /**
-     * Interfaz para manejar eventos de clic en los elementos de la lista.
-     */
-    public interface OnItemClickListener {
-        void onItemClick(String songPath);
-    }
-
-    /**
      * Obtiene la cantidad total de elementos en la lista.
      *
      * @return Cantidad total de elementos.
@@ -187,6 +131,63 @@ public class SongAdapter extends RecyclerView.Adapter<SongAdapter.ViewHolder> {
     @Override
     public int getItemCount() {
         return songList.size();
+    }
+
+    /**
+     * ViewHolder que representa la vista de cada elemento en el RecyclerView.
+     */
+    public class ViewHolder extends RecyclerView.ViewHolder {
+
+        /**
+         * Constructor del ViewHolder.
+         *
+         * @param itemView Vista de un elemento en la lista.
+         */
+        public ViewHolder(@NonNull View itemView) {
+            super(itemView);
+            initializeInterfaceElements(itemView);
+            itemView.setOnClickListener(this::onClickItenView);
+        }
+
+
+        /**
+         * Inicializa los elementos de la interfaz dentro del ViewHolder.
+         *
+         * @param itemView Vista de un elemento en la lista.
+         */
+        private void initializeInterfaceElements(@NonNull View itemView) {
+            songTitleTextView = itemView.findViewById(R.id.songTitleTextView);
+            authorTextView = itemView.findViewById(R.id.authorTextView);
+            albumTextView = itemView.findViewById(R.id.albumTextView);
+            albumImageView = itemView.findViewById(R.id.albumImageView);
+        }
+
+
+        /**
+         * Maneja el evento de clic en un elemento de la lista.
+         *
+         * @param view Vista del elemento en el que se hizo clic.
+         */
+        private void onClickItenView(View view) {
+            int position = getAdapterPosition();
+            if (position != RecyclerView.NO_POSITION && listener != null) {
+                listener.onItemClick(songList.get(position));
+            }
+        }
+
+        // Variables de clase ViewHolder
+        public TextView songTitleTextView;
+        public TextView authorTextView;
+        public TextView albumTextView;
+        public ImageView albumImageView;
+    }
+
+    /**
+     * Interfaz para manejar eventos de clic en los elementos de la lista.
+     */
+    public interface OnItemClickListener {
+        void onItemClick(String songPath);
+
     }
 
     // Variables de la clase SongAdapter
