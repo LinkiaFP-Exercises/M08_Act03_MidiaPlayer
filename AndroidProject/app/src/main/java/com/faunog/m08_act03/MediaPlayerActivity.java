@@ -22,6 +22,7 @@ import androidx.appcompat.widget.Toolbar;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * Clase que gestiona la reproducción de archivos de audio y la visualización de metadatos.
@@ -307,45 +308,56 @@ public class MediaPlayerActivity extends AppCompatActivity {
      * Infla la interfaz de usuario con metadatos de la pista actual.
      * Muestra el título, autor y álbum de la pista, así como la imagen del álbum si está disponible.
      * Si no hay metadatos, se utilizan valores predeterminados.
+     *
+     * @see MediaPlayerActivity#bindMetadataToTextViewInPlayer()
+     * @see MediaPlayerActivity#bindAlbumArtToImageViewInPlayer()
      */
-    @SuppressWarnings("resource")
     private void inflateMediaPlayerCharacteristics() {
-        MediaMetadataRetriever retriever = new MediaMetadataRetriever();
+        retriever = new MediaMetadataRetriever();
+        String songPath = songList.get(currentSongPosition);
         try {
-            String songPath = songList.get(currentSongPosition);
             retriever.setDataSource(songPath);
-
-            String songTitle = retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_TITLE);
-            String songAuthor = retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_ARTIST);
-            String songAlbum = retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_ALBUM);
-            byte[] albumArt = retriever.getEmbeddedPicture();
-
-            if (songTitle == null) {
-                Log.e("SongAdapter", "No se encontraron metadatos para: " + songPath);
-                songTitle = getString(R.string.activity_media_player_songTitleTextView);
-            }
-
-            songTitleTextView.setText(songTitle);
-            authorTextView.setText(songAuthor != null ? songAuthor : getString(R.string.activity_media_player_authorTextView));
-            albumTextView.setText(songAlbum != null ? songAlbum : getString(R.string.activity_media_player_albumTitleTextView));
-
-            if (albumArt != null) {
-                Bitmap bitmap = BitmapFactory.decodeByteArray(albumArt, 0, albumArt.length);
-                albumImageView.setImageBitmap(bitmap);
-            } else {
-                // Mostrar imagen predeterminada
-                int resourceId = R.drawable.unknown_album;
-                albumImageView.setImageResource(resourceId);
-            }
+            bindMetadataToTextViewInPlayer();
+            bindAlbumArtToImageViewInPlayer();
 
         } catch (Exception e) {
-            Log.e("MediaPlayerActivity", "Error in inflateMediaPlayerCharacteristics:\n" + e.getMessage(), e);
+            Log.e(TAG, "Error in inflateMediaPlayerCharacteristics:\n" + e.getMessage(), e);
         } finally {
             try {
                 retriever.release();
             } catch (IOException e) {
-                Log.e("MediaPlayerActivity", "Error Trying release retriever:\n" + e.getMessage(), e);
+                Log.e(TAG, "Error Trying release retriever:\n" + e.getMessage(), e);
             }
+        }
+    }
+
+    /**
+     * Vincula los metadatos de la canción a los TextViews correspondientes.
+     */
+    private void bindMetadataToTextViewInPlayer() {
+        String songTitle = retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_TITLE);
+        String songAuthor = retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_ARTIST);
+        String songAlbum = retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_ALBUM);
+
+        songTitleTextView.setText(Optional.ofNullable(songTitle)
+                .orElse(getString(R.string.activity_media_player_songTitleTextView)));
+        authorTextView.setText(Optional.ofNullable(songAuthor)
+                .orElse(getString(R.string.activity_media_player_authorTextView)));
+        albumTextView.setText(Optional.ofNullable(songAlbum)
+                .orElse(getString(R.string.activity_media_player_albumTitleTextView)));
+    }
+
+    /**
+     * Vincula la imagen del álbum al ImageView correspondiente.
+     */
+    private void bindAlbumArtToImageViewInPlayer() {
+        byte[] albumArt = retriever.getEmbeddedPicture();
+        if (albumArt != null) {
+            Bitmap bitmap = BitmapFactory.decodeByteArray(albumArt, 0, albumArt.length);
+            albumImageView.setImageBitmap(bitmap);
+        } else {
+            int resourceId = R.drawable.unknown_album;
+            albumImageView.setImageResource(resourceId);
         }
     }
 
