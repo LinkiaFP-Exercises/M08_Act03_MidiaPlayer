@@ -419,6 +419,60 @@ public class MediaPlayerActivity extends AppCompatActivity {
         }
     }
 
+    /**
+     * Método llamado antes de que la actividad sea destruida para guardar el estado actual.
+     *
+     * @param outState Objeto Bundle donde se guarda el estado de la actividad.
+     *                 Se guardan la posición actual del reproductor multimedia,
+     *                 la duración total de la canción, la posición de la canción actual
+     *                 en la lista y el estado de reproducción del reproductor multimedia.
+     */
+    @Override
+    protected void onSaveInstanceState(@NonNull Bundle outState) {
+        super.onSaveInstanceState(outState);
+
+        outState.putInt("CURRENT_POSITION", mediaPlayer.getCurrentPosition());
+        outState.putInt("TOTAL_DURATION", totalDuration);
+        outState.putInt("CURRENT_SONG_POSITION", currentSongPosition);
+        outState.putBoolean("IS_PLAYING", mediaPlayer.isPlaying());
+    }
+
+    /**
+     * Método llamado después de que la actividad ha sido recreada para restaurar el estado guardado.
+     *
+     * @param savedInstanceState Objeto Bundle que contiene el estado guardado de la actividad.
+     *                           Se recuperan la posición actual del reproductor multimedia,
+     *                           la duración total de la canción, la posición de la canción actual
+     *                           en la lista y el estado de reproducción del reproductor multimedia.
+     *                           Se utiliza para configurar el reproductor multimedia y actualizar
+     *                           la interfaz de usuario según sea necesario.
+     */
+    @Override
+    protected void onRestoreInstanceState(@NonNull Bundle savedInstanceState) {
+        super.onRestoreInstanceState(savedInstanceState);
+
+        // Restaura el estado guardado después de un cambio en la configuración
+        int currentPosition = savedInstanceState.getInt("CURRENT_POSITION");
+        totalDuration = savedInstanceState.getInt("TOTAL_DURATION");
+        currentSongPosition = savedInstanceState.getInt("CURRENT_SONG_POSITION");
+        boolean isPlaying = savedInstanceState.getBoolean("IS_PLAYING");
+
+        if (mediaPlayer != null) {
+
+            mediaPlayer.seekTo(currentPosition);
+
+            if (isPlaying) {
+                mediaPlayer.start();
+            } else {
+                mediaPlayer.pause();
+            }
+
+            updateSeekBar();
+            inflateMediaPlayerCharacteristics();
+        }
+    }
+
+
     /*
     Variables de la clase
      */
@@ -432,4 +486,6 @@ public class MediaPlayerActivity extends AppCompatActivity {
     private List<String> songList;
     private int totalDuration, currentSongPosition = 0;
     private final Handler handler = new Handler();
+    private MediaMetadataRetriever retriever;
+    public static final String TAG = "MediaPlayerActivity";
 }
