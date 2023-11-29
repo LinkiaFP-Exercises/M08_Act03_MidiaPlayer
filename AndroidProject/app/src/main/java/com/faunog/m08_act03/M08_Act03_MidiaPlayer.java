@@ -25,8 +25,20 @@ import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
+/**
+ * Clase principal que gestiona la reproducción de archivos de audio y la visualización en una lista.
+ *
+ * @author <a href="https://about.me/prof.guazina">Fauno Guazina</a>
+ * @version 1.1
+ * @since 29/11/2023
+ */
 public class M08_Act03_MidiaPlayer extends AppCompatActivity {
 
+    /**
+     * Método llamado cuando se crea la actividad.
+     *
+     * @param savedInstanceState El estado guardado de la actividad.
+     */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -36,6 +48,9 @@ public class M08_Act03_MidiaPlayer extends AppCompatActivity {
         checkAndRequestPermission();
     }
 
+    /**
+     * Llena la lista de canciones con archivos de audio encontrados en el directorio de descargas.
+     */
     private void fillSongList() {
         String pathToDirectoryDownloads = Environment
                 .getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS).toString();
@@ -50,17 +65,30 @@ public class M08_Act03_MidiaPlayer extends AppCompatActivity {
         Log.d("SongListSize", "Size: " + songList.size());
     }
 
+    /**
+     * Construye el RecyclerView para mostrar la lista de canciones.
+     */
     private void buildRecyclerView() {
         recyclerView = findViewById(R.id.recyclerView);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
         recyclerView.setAdapter(getSongAdapter());
     }
 
+    /**
+     * Obtiene un adaptador para la lista de canciones.
+     *
+     * @return Adaptador de la lista de canciones.
+     */
     @NonNull
     private SongAdapter getSongAdapter() {
         return new SongAdapter(songList, this, this::onSongClick);
     }
 
+    /**
+     * Acción realizada al hacer clic en una canción.
+     *
+     * @param songPath Ruta de la canción seleccionada.
+     */
     private void onSongClick(String songPath) {
         Intent intent = new Intent(M08_Act03_MidiaPlayer.this, MediaPlayerActivity.class);
         intent.putExtra("SONG_PATH", songPath);
@@ -68,6 +96,9 @@ public class M08_Act03_MidiaPlayer extends AppCompatActivity {
         startActivity(intent);
     }
 
+    /**
+     * Recarga la lista de archivos de audio y notifica al adaptador si ha habido cambios.
+     */
     @SuppressLint("NotifyDataSetChanged")
     private void reloadFiles() {
         List<String> oldList = new ArrayList<>(songList);
@@ -79,6 +110,11 @@ public class M08_Act03_MidiaPlayer extends AppCompatActivity {
     }
 
 
+    /**
+     * Verifica y solicita permisos para acceder al almacenamiento externo.
+     *
+     * @see M08_Act03_MidiaPlayer#reloadFiles()
+     */
     private void checkAndRequestPermission() {
         String[] permissions = {Manifest.permission.READ_EXTERNAL_STORAGE};
         int read_external = ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE);
@@ -90,6 +126,14 @@ public class M08_Act03_MidiaPlayer extends AppCompatActivity {
 
     }
 
+    /**
+     * Maneja la respuesta de la solicitud de permisos.
+     *
+     * @param requestCode  Código de solicitud.
+     * @param permissions  Arreglo de permisos solicitados.
+     * @param grantResults Arreglo de resultados de la solicitud de permisos.
+     * @see M08_Act03_MidiaPlayer#showPermissionDeniedMessage()
+     */
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
@@ -102,6 +146,9 @@ public class M08_Act03_MidiaPlayer extends AppCompatActivity {
         }
     }
 
+    /**
+     * Muestra un mensaje indicando que se denegaron los permisos y proporciona un enlace para configurarlos.
+     */
     private void showPermissionDeniedMessage() {
         Toast.makeText(this, "Es necesario el permiso para acceder a los archivos.", Toast.LENGTH_SHORT).show();
         Intent intent = new Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS, Uri.fromParts("package", getPackageName(), null));
@@ -109,7 +156,18 @@ public class M08_Act03_MidiaPlayer extends AppCompatActivity {
         startActivity(intent);
     }
 
+    /**
+     * RecyclerView utilizado para mostrar la lista de canciones.
+     */
     private RecyclerView recyclerView;
+
+    /**
+     * Lista de rutas de archivos de audio.
+     */
     private List<String> songList;
+
+    /**
+     * Constante que representa el código de solicitud de permisos.
+     */
     private static final int MY_PERMISSIONS_REQUEST_READ_EXTERNAL_STORAGE = 1;
 }
