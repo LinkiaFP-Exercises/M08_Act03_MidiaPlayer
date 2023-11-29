@@ -102,7 +102,6 @@ public class M08_Act03_MidiaPlayer extends AppCompatActivity {
     @SuppressLint("NotifyDataSetChanged")
     private void reloadFiles() {
         List<String> oldList = new ArrayList<>(songList);
-        fillSongList();
 
         if (!oldList.equals(songList)) {
             Objects.requireNonNull(recyclerView.getAdapter()).notifyDataSetChanged();
