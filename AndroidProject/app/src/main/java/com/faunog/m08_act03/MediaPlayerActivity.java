@@ -461,12 +461,20 @@ public class MediaPlayerActivity extends AppCompatActivity {
 
         if (mediaPlayer != null) {
 
-            mediaPlayer.seekTo(currentPosition);
-
-            if (isPlaying) {
-                mediaPlayer.start();
-            } else {
-                mediaPlayer.pause();
+            try {
+                mediaPlayer.reset();
+                mediaPlayer.setDataSource(songList.get(currentSongPosition));
+                mediaPlayer.prepare();
+                mediaPlayer.seekTo(currentPosition);
+                if (isPlaying) {
+                    mediaPlayer.start();
+                    playPauseButton.setText(getString(R.string.activity_media_player_ButtonPause));
+                } else {
+                    mediaPlayer.pause();
+                    playPauseButton.setText(getString(R.string.activity_media_player_ButtonPlay));
+                }
+            } catch (IOException e) {
+                Log.e(TAG, "onRestoreInstanceState: " + e.getMessage(), e);
             }
 
             updateSeekBar();
