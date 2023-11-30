@@ -22,9 +22,23 @@ import androidx.appcompat.widget.Toolbar;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.Optional;
 
+/**
+ * Clase que gestiona la reproducción de archivos de audio y la visualización de metadatos.
+ *
+ * @author <a href="https://about.me/prof.guazina">Fauno Guazina</a>
+ * @version 1.1
+ * @since 29/11/2023
+ */
 public class MediaPlayerActivity extends AppCompatActivity {
 
+    /**
+     * Método llamado cuando se crea la actividad.
+     * Inicializa la interfaz de usuario y los elementos del reproductor multimedia.
+     *
+     * @param savedInstanceState El estado guardado de la actividad.
+     */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -43,6 +57,13 @@ public class MediaPlayerActivity extends AppCompatActivity {
 
     }
 
+    /**
+     * Acción ejecutada al hacer clic en el botón de reproducción/pausa.
+     * Controla la reproducción o pausa del archivo de audio.
+     * Actualiza la interfaz de usuario y la barra de progreso.
+     *
+     * @param view La vista del botón clicado.
+     */
     private void onClickPlayPauseButton(View view) {
         if (mediaPlayer.isPlaying()) {
             mediaPlayer.pause();
@@ -54,6 +75,13 @@ public class MediaPlayerActivity extends AppCompatActivity {
         updateSeekBar();
     }
 
+    /**
+     * Acción ejecutada al hacer clic en el botón de detener.
+     * Reinicia la reproducción al principio del archivo de audio y pausa la reproducción.
+     * Actualiza la interfaz de usuario y la barra de progreso.
+     *
+     * @param view La vista del botón clicado.
+     */
     private void onClickStopButton(View view) {
         mediaPlayer.seekTo(0);
         mediaPlayer.pause();
@@ -61,18 +89,39 @@ public class MediaPlayerActivity extends AppCompatActivity {
         updateSeekBar();
     }
 
+    /**
+     * Acción ejecutada al hacer clic en el botón de avance rápido.
+     * Avanza la reproducción en 10 segundos.
+     * Actualiza la interfaz de usuario y la barra de progreso.
+     *
+     * @param view La vista del botón clicado.
+     */
     private void onClickForwardButton(View view) {
         int currentPosition = mediaPlayer.getCurrentPosition();
         mediaPlayer.seekTo(currentPosition + 10000); // Avanzar 10 segundos
         updateSeekBar();
     }
 
+    /**
+     * Acción ejecutada al hacer clic en el botón de retroceso.
+     * Retrocede la reproducción en 10 segundos.
+     * Actualiza la interfaz de usuario y la barra de progreso.
+     *
+     * @param view La vista del botón clicado.
+     */
     private void onClickBackwardButton(View view) {
         int currentPosition = mediaPlayer.getCurrentPosition();
         mediaPlayer.seekTo(currentPosition - 10000); // Retroceder 10 segundos
         updateSeekBar();
     }
 
+    /**
+     * Acción ejecutada al hacer clic en el botón de pista anterior.
+     * Cambia a la pista anterior en la lista de reproducción o vuelve a la última si es la primera pista.
+     * Actualiza la interfaz de usuario y la barra de progreso.
+     *
+     * @param view La vista del botón clicado.
+     */
     private void onClickPrevButton(View view) {
         if (currentSongPosition > 0) {
             currentSongPosition--;
@@ -85,9 +134,22 @@ public class MediaPlayerActivity extends AppCompatActivity {
         updateSeekBar();
     }
 
+    /**
+     * Obtiene un escuchador de cambios en la barra de progreso.
+     *
+     * @return El escuchador de cambios en la barra de progreso.
+     */
     @NonNull
     private SeekBar.OnSeekBarChangeListener getOnSeekBarChangeListener() {
         return new SeekBar.OnSeekBarChangeListener() {
+            /**
+             * Método llamado cuando cambia el progreso de la barra de progreso.
+             * Actualiza la posición de reproducción según sea necesario.
+             *
+             * @param seekBar  La barra de progreso.
+             * @param progress La posición actual.
+             * @param fromUser Indica si el cambio fue realizado por el usuario.
+             */
             @Override
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
                 // Actualiza la posición de reproducción según sea necesario
@@ -97,22 +159,44 @@ public class MediaPlayerActivity extends AppCompatActivity {
                 }
             }
 
+            /**
+             * Método llamado cuando se comienza a realizar un seguimiento táctil en la barra de progreso.
+             * Pausa la reproducción si está en curso.
+             *
+             * @param seekBar La barra de progreso.
+             */
             @Override
             public void onStartTrackingTouch(SeekBar seekBar) {
                 if (mediaPlayer.isPlaying()) {
                     mediaPlayer.pause();
+                    playPauseButton.setText(getString(R.string.activity_media_player_ButtonPlay));
                 }
             }
 
+            /**
+             * Método llamado cuando se detiene el seguimiento táctil en la barra de progreso.
+             * Reanuda la reproducción si estaba en pausa.
+             *
+             * @param seekBar La barra de progreso.
+             */
             @Override
             public void onStopTrackingTouch(SeekBar seekBar) {
                 if (!mediaPlayer.isPlaying()) {
                     mediaPlayer.start();
+                    playPauseButton.setText(getString(R.string.activity_media_player_ButtonPause));
                 }
             }
         };
     }
 
+    /**
+     * Método llamado al completarse la reproducción de una pista.
+     * Cambia a la siguiente pista en la lista de reproducción o vuelve al principio si es la última pista.
+     * Actualiza la interfaz de usuario y la barra de progreso.
+     *
+     * @see MediaPlayerActivity#resetMediaPlayerAndPlayNextSong()
+     * @see MediaPlayerActivity#setSongPositionTo0AndPrepareForPlay()
+     */
     private void playNextSongIfNotLastOrPrepareFirstSong() {
         if (currentSongPosition < songList.size() - 1) {
             currentSongPosition++;
@@ -125,6 +209,9 @@ public class MediaPlayerActivity extends AppCompatActivity {
         updateSeekBar();
     }
 
+    /**
+     * Reinicia el reproductor multimedia y reproduce la siguiente pista en la lista de reproducción.
+     */
     private void resetMediaPlayerAndPlayNextSong() {
         try {
             mediaPlayer.reset();
@@ -137,6 +224,9 @@ public class MediaPlayerActivity extends AppCompatActivity {
         }
     }
 
+    /**
+     * Establece la posición de la canción en 0 y prepara el reproductor para la reproducción.
+     */
     private void setSongPositionTo0AndPrepareForPlay() {
         try {
             mediaPlayer.stop();
@@ -149,6 +239,10 @@ public class MediaPlayerActivity extends AppCompatActivity {
         }
     }
 
+    /**
+     * Inicializa los elementos de la interfaz de usuario.
+     * Asocia los elementos de la interfaz con las variables correspondientes.
+     */
     private void initializeInterfaceElements() {
         toolbar = findViewById(R.id.toolbar);
 
@@ -168,6 +262,10 @@ public class MediaPlayerActivity extends AppCompatActivity {
         chronometerEnd = findViewById(R.id.chronometerEnd);
     }
 
+    /**
+     * Configura la función de navegación de la barra de herramientas.
+     * Si se presiona, navega de vuelta a la actividad principal.
+     */
     private void toolbarNavigationFunction() {
         toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
@@ -185,6 +283,11 @@ public class MediaPlayerActivity extends AppCompatActivity {
         });
     }
 
+    /**
+     * Inicializa los elementos del reproductor multimedia.
+     * Configura el reproductor multimedia con la pista seleccionada.
+     * Obtiene metadatos y actualiza la interfaz de usuario.
+     */
     private void initializeMediaPlayerElements() {
         mediaPlayer = new MediaPlayer();
         Intent intent = getIntent();
@@ -204,48 +307,68 @@ public class MediaPlayerActivity extends AppCompatActivity {
     }
 
     /**
-     * @noinspection resource
+     * Infla la interfaz de usuario con metadatos de la pista actual.
+     * Muestra el título, autor y álbum de la pista, así como la imagen del álbum si está disponible.
+     * Si no hay metadatos, se utilizan valores predeterminados.
+     *
+     * @see MediaPlayerActivity#bindMetadataToTextViewInPlayer()
+     * @see MediaPlayerActivity#bindAlbumArtToImageViewInPlayer()
      */
     private void inflateMediaPlayerCharacteristics() {
-        MediaMetadataRetriever retriever = new MediaMetadataRetriever();
+        retriever = new MediaMetadataRetriever();
+        String songPath = songList.get(currentSongPosition);
         try {
-            String songPath = songList.get(currentSongPosition);
             retriever.setDataSource(songPath);
-
-            String songTitle = retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_TITLE);
-            String songAuthor = retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_ARTIST);
-            String songAlbum = retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_ALBUM);
-            byte[] albumArt = retriever.getEmbeddedPicture();
-
-            if (songTitle == null) {
-                Log.e("SongAdapter", "No se encontraron metadatos para: " + songPath);
-                songTitle = getString(R.string.activity_media_player_songTitleTextView);
-            }
-
-            songTitleTextView.setText(songTitle);
-            authorTextView.setText(songAuthor != null ? songAuthor : getString(R.string.activity_media_player_authorTextView));
-            albumTextView.setText(songAlbum != null ? songAlbum : getString(R.string.activity_media_player_albumTitleTextView));
-
-            if (albumArt != null) {
-                Bitmap bitmap = BitmapFactory.decodeByteArray(albumArt, 0, albumArt.length);
-                albumImageView.setImageBitmap(bitmap);
-            } else {
-                // Mostrar imagen predeterminada
-                int resourceId = R.drawable.unknown_album;
-                albumImageView.setImageResource(resourceId);
-            }
+            bindMetadataToTextViewInPlayer();
+            bindAlbumArtToImageViewInPlayer();
 
         } catch (Exception e) {
-            Log.e("MediaPlayerActivity", "Error in inflateMediaPlayerCharacteristics:\n" + e.getMessage(), e);
+            Log.e(TAG, "Error in inflateMediaPlayerCharacteristics:\n" + e.getMessage(), e);
         } finally {
             try {
                 retriever.release();
             } catch (IOException e) {
-                Log.e("MediaPlayerActivity", "Error Trying release retriever:\n" + e.getMessage(), e);
+                Log.e(TAG, "Error Trying release retriever:\n" + e.getMessage(), e);
             }
         }
     }
 
+    /**
+     * Vincula los metadatos de la canción a los TextViews correspondientes.
+     */
+    private void bindMetadataToTextViewInPlayer() {
+        String songTitle = retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_TITLE);
+        String songAuthor = retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_ARTIST);
+        String songAlbum = retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_ALBUM);
+
+        songTitleTextView.setText(Optional.ofNullable(songTitle)
+                .orElse(getString(R.string.activity_media_player_songTitleTextView)));
+        authorTextView.setText(Optional.ofNullable(songAuthor)
+                .orElse(getString(R.string.activity_media_player_authorTextView)));
+        albumTextView.setText(Optional.ofNullable(songAlbum)
+                .orElse(getString(R.string.activity_media_player_albumTitleTextView)));
+    }
+
+    /**
+     * Vincula la imagen del álbum al ImageView correspondiente.
+     */
+    private void bindAlbumArtToImageViewInPlayer() {
+        byte[] albumArt = retriever.getEmbeddedPicture();
+        if (albumArt != null) {
+            Bitmap bitmap = BitmapFactory.decodeByteArray(albumArt, 0, albumArt.length);
+            albumImageView.setImageBitmap(bitmap);
+        } else {
+            int resourceId = R.drawable.unknown_album;
+            albumImageView.setImageResource(resourceId);
+        }
+    }
+
+    /**
+     * Actualiza la barra de progreso y los cronómetros.
+     * Actualiza la posición y duración actuales de la reproducción.
+     *
+     * @see MediaPlayerActivity#updateChronometers(int)
+     */
     private void updateSeekBar() {
         if (mediaPlayer != null) {
             int currentDuration = mediaPlayer.getCurrentPosition();
@@ -259,6 +382,11 @@ public class MediaPlayerActivity extends AppCompatActivity {
         }
     }
 
+    /**
+     * Actualiza los cronómetros con el tiempo transcurrido y restante de la canción.
+     *
+     * @param currentDuration Duración actual de la canción en reproducción.
+     */
     private void updateChronometers(int currentDuration) {
         int remainingDuration = totalDuration - currentDuration;
 
@@ -274,6 +402,13 @@ public class MediaPlayerActivity extends AppCompatActivity {
         }
     }
 
+    /**
+     * Realiza tareas de limpieza cuando la actividad se destruye.
+     * Llama a super.onDestroy().
+     * Elimina los callbacks y mensajes del handler.
+     * Libera el mediaPlayer si no es nulo.
+     * Establece el mediaPlayer en nulo.
+     */
     @Override
     protected void onDestroy() {
         super.onDestroy();
@@ -286,6 +421,71 @@ public class MediaPlayerActivity extends AppCompatActivity {
         }
     }
 
+    /**
+     * Método llamado antes de que la actividad sea destruida para guardar el estado actual.
+     *
+     * @param outState Objeto Bundle donde se guarda el estado de la actividad.
+     *                 Se guardan la posición actual del reproductor multimedia,
+     *                 la duración total de la canción, la posición de la canción actual
+     *                 en la lista y el estado de reproducción del reproductor multimedia.
+     */
+    @Override
+    protected void onSaveInstanceState(@NonNull Bundle outState) {
+        super.onSaveInstanceState(outState);
+
+        outState.putInt("CURRENT_POSITION", mediaPlayer.getCurrentPosition());
+        outState.putInt("TOTAL_DURATION", totalDuration);
+        outState.putInt("CURRENT_SONG_POSITION", currentSongPosition);
+        outState.putBoolean("IS_PLAYING", mediaPlayer.isPlaying());
+    }
+
+    /**
+     * Método llamado después de que la actividad ha sido recreada para restaurar el estado guardado.
+     *
+     * @param savedInstanceState Objeto Bundle que contiene el estado guardado de la actividad.
+     *                           Se recuperan la posición actual del reproductor multimedia,
+     *                           la duración total de la canción, la posición de la canción actual
+     *                           en la lista y el estado de reproducción del reproductor multimedia.
+     *                           Se utiliza para configurar el reproductor multimedia y actualizar
+     *                           la interfaz de usuario según sea necesario.
+     */
+    @Override
+    protected void onRestoreInstanceState(@NonNull Bundle savedInstanceState) {
+        super.onRestoreInstanceState(savedInstanceState);
+
+        // Restaura el estado guardado después de un cambio en la configuración
+        int currentPosition = savedInstanceState.getInt("CURRENT_POSITION");
+        totalDuration = savedInstanceState.getInt("TOTAL_DURATION");
+        currentSongPosition = savedInstanceState.getInt("CURRENT_SONG_POSITION");
+        boolean isPlaying = savedInstanceState.getBoolean("IS_PLAYING");
+
+        if (mediaPlayer != null) {
+
+            try {
+                mediaPlayer.reset();
+                mediaPlayer.setDataSource(songList.get(currentSongPosition));
+                mediaPlayer.prepare();
+                mediaPlayer.seekTo(currentPosition);
+                if (isPlaying) {
+                    mediaPlayer.start();
+                    playPauseButton.setText(getString(R.string.activity_media_player_ButtonPause));
+                } else {
+                    mediaPlayer.pause();
+                    playPauseButton.setText(getString(R.string.activity_media_player_ButtonPlay));
+                }
+            } catch (IOException e) {
+                Log.e(TAG, "onRestoreInstanceState: " + e.getMessage(), e);
+            }
+
+            updateSeekBar();
+            inflateMediaPlayerCharacteristics();
+        }
+    }
+
+
+    /*
+    Variables de la clase
+     */
     private Toolbar toolbar;
     public TextView songTitleTextView, authorTextView, albumTextView;
     public ImageView albumImageView;
@@ -296,4 +496,6 @@ public class MediaPlayerActivity extends AppCompatActivity {
     private List<String> songList;
     private int totalDuration, currentSongPosition = 0;
     private final Handler handler = new Handler();
+    private MediaMetadataRetriever retriever;
+    public static final String TAG = "MediaPlayerActivity";
 }
