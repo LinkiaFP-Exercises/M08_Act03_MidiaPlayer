@@ -41,25 +41,64 @@ public class M08_Act03_MidiaPlayer extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
-        fillSongList();
-        buildRecyclerView();
-        checkAndRequestPermission();
+        checkAndRequestPermissionBeforeProceedingWithOtherOperations();
+    }
+
+    /**
+     * Verifica y solicita permisos para acceder al almacenamiento externo antes de proceder con otras operaciones.
+     * Si los permisos no están concedidos, solicita permisos al usuario mediante la ventana emergente.
+     * Si los permisos ya están concedidos, establece la bandera 'permissionsGranted' en verdadero y
+     * continua con las operaciones adicionales.
+     *
+     * @see M08_Act03_MidiaPlayer#continueWithOtherOperations()
+     */
+    private void checkAndRequestPermissionBeforeProceedingWithOtherOperations() {
+        String[] permissions = {Manifest.permission.READ_EXTERNAL_STORAGE};
+        int read_external = ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE);
+        if (read_external != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(this, permissions, MY_PERMISSIONS_REQUEST_READ_EXTERNAL_STORAGE);
+        } else {
+            permissionsGranted = true;
+            continueWithOtherOperations();
+        }
+    }
+
+    /**
+     * Continúa con las operaciones adicionales después de verificar los permisos.
+     * Si los permisos están concedidos, establece el contenido de la vista en el diseño principal,
+     * llena la lista de canciones y construye el RecyclerView para mostrar la lista.
+     * Si los permisos no están concedidos, muestra un mensaje indicando que es necesario el permiso
+     * para acceder a los archivos.
+     */
+    private void continueWithOtherOperations() {
+        if (permissionsGranted) {
+            setContentView(R.layout.activity_main);
+            fillSongList();
+            buildRecyclerView();
+        } else {
+            showPermissionDeniedMessage();
+        }
+    }
+
+    /**
+     * Muestra un mensaje indicando que se denegaron los permisos y proporciona un enlace para configurarlos.
+     */
+    private void showPermissionDeniedMessage() {
+        Toast.makeText(this, "Es necesario el permiso para acceder a los archivos.", Toast.LENGTH_LONG).show();
+        Intent intent = new Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS, Uri.fromParts("package", getPackageName(), null));
+        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        startActivity(intent);
     }
 
     /**
      * Llena la lista de canciones con archivos de audio encontrados en el directorio de descargas.
      */
     private void fillSongList() {
-        String pathToDirectoryDownloads = Environment
-                .getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS).toString();
+        String pathToDirectoryDownloads = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS).toString();
         File directoryDownloads = new File(pathToDirectoryDownloads);
         File[] files = directoryDownloads.listFiles();
         if (files != null) {
-            songList = Arrays.stream(files)
-                    .filter(file -> file.getName().endsWith(".mp3"))
-                    .map(File::getAbsolutePath)
-                    .collect(Collectors.toList());
+            songList = Arrays.stream(files).filter(file -> file.getName().endsWith(".mp3")).map(File::getAbsolutePath).collect(Collectors.toList());
         }
     }
 
@@ -100,27 +139,10 @@ public class M08_Act03_MidiaPlayer extends AppCompatActivity {
     @SuppressLint("NotifyDataSetChanged")
     private void reloadFiles() {
         List<String> oldList = new ArrayList<>(songList);
-
+        fillSongList();
         if (!oldList.equals(songList)) {
             Objects.requireNonNull(recyclerView.getAdapter()).notifyDataSetChanged();
         }
-    }
-
-
-    /**
-     * Verifica y solicita permisos para acceder al almacenamiento externo.
-     *
-     * @see M08_Act03_MidiaPlayer#reloadFiles()
-     */
-    private void checkAndRequestPermission() {
-        String[] permissions = {Manifest.permission.READ_EXTERNAL_STORAGE};
-        int read_external = ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE);
-        if (read_external != PackageManager.PERMISSION_GRANTED) {
-            ActivityCompat.requestPermissions(this, permissions, MY_PERMISSIONS_REQUEST_READ_EXTERNAL_STORAGE);
-        } else {
-            reloadFiles();
-        }
-
     }
 
     /**
@@ -136,21 +158,16 @@ public class M08_Act03_MidiaPlayer extends AppCompatActivity {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
         if (requestCode == MY_PERMISSIONS_REQUEST_READ_EXTERNAL_STORAGE) {
             if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                reloadFiles();
+                if (songList != null) {
+                    reloadFiles();
+                } else {
+                    permissionsGranted = true;
+                    continueWithOtherOperations();
+                }
             } else {
                 showPermissionDeniedMessage();
             }
         }
-    }
-
-    /**
-     * Muestra un mensaje indicando que se denegaron los permisos y proporciona un enlace para configurarlos.
-     */
-    private void showPermissionDeniedMessage() {
-        Toast.makeText(this, "Es necesario el permiso para acceder a los archivos.", Toast.LENGTH_SHORT).show();
-        Intent intent = new Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS, Uri.fromParts("package", getPackageName(), null));
-        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-        startActivity(intent);
     }
 
     /**
@@ -167,4 +184,10 @@ public class M08_Act03_MidiaPlayer extends AppCompatActivity {
      * Constante que representa el código de solicitud de permisos.
      */
     private static final int MY_PERMISSIONS_REQUEST_READ_EXTERNAL_STORAGE = 1;
+
+    /**
+     * Variable que indica si los permisos han sido concedidos.
+     * Inicialmente establecida en falso y se actualiza cuando se conceden los permisos necesarios.
+     */
+    private boolean permissionsGranted = false;
 }
