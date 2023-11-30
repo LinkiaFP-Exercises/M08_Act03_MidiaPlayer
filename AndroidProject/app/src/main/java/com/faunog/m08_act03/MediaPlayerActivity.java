@@ -169,6 +169,7 @@ public class MediaPlayerActivity extends AppCompatActivity {
             public void onStartTrackingTouch(SeekBar seekBar) {
                 if (mediaPlayer.isPlaying()) {
                     mediaPlayer.pause();
+                    playPauseButton.setText(getString(R.string.activity_media_player_ButtonPlay));
                 }
             }
 
@@ -182,6 +183,7 @@ public class MediaPlayerActivity extends AppCompatActivity {
             public void onStopTrackingTouch(SeekBar seekBar) {
                 if (!mediaPlayer.isPlaying()) {
                     mediaPlayer.start();
+                    playPauseButton.setText(getString(R.string.activity_media_player_ButtonPause));
                 }
             }
         };
